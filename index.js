@@ -5,12 +5,26 @@ var getAccessToken = (function (){
     return function (callback) {
         setTimeout(function(){
             callback(undefined, "some access token");
+        }, 5);
+    };
+});
+
+var getSomeApiAccessWithAccessToken = (function (accessToken) {
+    return function(callback(){
+        setTimeout(function(){
+            if(accessToken === "valid"){
+                callback(undefined, "success");
+            } else {
+                callback("accessToken is invalid");
+            }
         }, 1000);
     };
 });
 
+
 var getAccessTokenObservable = Rx.Observable.create(function (observable){
     (getAccessToken())(function(err, val){ 
+        console.log("Hoge");
         if(err){
             observable.onError(err);
         } else {
@@ -21,10 +35,9 @@ var getAccessTokenObservable = Rx.Observable.create(function (observable){
 });
 
 getAccessTokenObservable
-    //.repeat()
-    //.take(11)
+    .share()
     .subscribe(
-        (x) => { console.log('next', x); },
+        (accessToken) => { console.log('next', accessToken); },
         (err) => { console.log('error', err); },
         () => { console.log('done'); }
     );
